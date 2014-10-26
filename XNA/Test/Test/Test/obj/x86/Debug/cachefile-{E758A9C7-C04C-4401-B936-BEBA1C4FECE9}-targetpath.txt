@@ -1,0 +1,4 @@
+Content\Sprites\SpaceShip.xnb
+Content\Sprites\ShipBullet.xnb
+Content\Sprites\EnemyShip.xnb
+Content\Sprites\BigAssCursor.xnb
