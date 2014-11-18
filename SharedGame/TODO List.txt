@@ -1,0 +1,14 @@
+Not Really Important
+--------------------
+- Balancing
+- Add more wave bonuses
+
+Moderately Important
+--------------------
+- Add wave negative effects(after wave 5)
+
+
+Very important
+--------------------
+
+- Find better sprites if possible
