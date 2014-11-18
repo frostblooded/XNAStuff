@@ -10,40 +10,37 @@ namespace BunnySimulation
     {
         public static int width;
         public static int height;
-        public const int cellsPerRow = 30;
 
         public static GraphicsDeviceManager graphics;
         public static SpriteBatch spriteBatch;
         public static ContentManager content;
         public static MouseCursor mouse;
         public static KeysInput keyboard;
+        public static Random rand;
 
         private Texture2D gridTexture;
-        private Texture2D adultTexture;
-        private Texture2D youngTexture;
 
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             content = Content;
+            rand = new Random();
         }
 
         protected override void Initialize()
         {
-            gridTexture = Scripts.LoadTexture("Grid"); //Nobody sees this
+            gridTexture = Scripts.LoadTexture("Grid"); //Nobody sees that this is in the initialize
             HandleWindowSize();
             Grid.Initialize();
             mouse = new MouseCursor(width, height, 1000);
-            keyboard = new KeysInput();
+            keyboard = new KeysInput(); 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            adultTexture = Scripts.LoadTexture(@"BunnyLetters\AdultBunny");
-            youngTexture = Scripts.LoadTexture(@"BunnyLetters\YoungBunny");
         }
 
         private void HandleWindowSize()
