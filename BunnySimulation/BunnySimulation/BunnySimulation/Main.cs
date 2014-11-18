@@ -19,7 +19,8 @@ namespace BunnySimulation
         public static KeysInput keyboard;
 
         private Texture2D gridTexture;
-        private Texture2D testTexture;
+        private Texture2D adultTexture;
+        private Texture2D youngTexture;
 
         public Main()
         {
@@ -41,7 +42,8 @@ namespace BunnySimulation
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            testTexture = Scripts.LoadTexture(@"BunnyLetters\AdultBunny");
+            adultTexture = Scripts.LoadTexture(@"BunnyLetters\AdultBunny");
+            youngTexture = Scripts.LoadTexture(@"BunnyLetters\YoungBunny");
         }
 
         private void HandleWindowSize()
@@ -73,16 +75,8 @@ namespace BunnySimulation
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Green);
             spriteBatch.Begin();
-
-            for (int i = 0; i < cellsPerRow; i++)
-            {
-                for (int j = 0; j < cellsPerRow; j++)
-                {
-                    spriteBatch.Draw(testTexture, Grid.GetCell(i, j), Color.Blue);
-                }
-            }
 
             spriteBatch.Draw(gridTexture, new Vector2(), Color.White);
 
