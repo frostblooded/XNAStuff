@@ -23,6 +23,7 @@ namespace BunnySimulation
     public class Bunny
     {
         public const int evilBunnyChance = 2;
+        public const int birthChance = 35;
         public static Color maleColor = Color.Blue;
         public static Color femaleColor = Color.Red;
         public static Color evilBunnyColor = Color.Black;
@@ -46,13 +47,6 @@ namespace BunnySimulation
             Name = Bunny.bunnyNames[Main.rand.Next(bunnyNames.Count)];
             Evil = IsItEvil();
             Position = GetEmptyCellPosition();
-
-            if (Evil)
-            {
-                Console.Write("Evil ");
-            }
-
-            Console.WriteLine("Bunny {0} was born. : {1}", Name, Sex);
         }
 
         public Bunny(Vector2 position)
@@ -103,6 +97,50 @@ namespace BunnySimulation
             }
         }
 
+        public void MakeAdjacentBunnyEvil()
+        {
+            Bunny newEvilBunny = null;
+            List<Bunny> availableBunniesForConversion = new List<Bunny>();
+
+            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y - 1);
+
+            if (newEvilBunny != null)
+            {
+                availableBunniesForConversion.Add(newEvilBunny);
+                newEvilBunny = null;
+            }
+
+            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X + 1 && bun.Position.Y == Position.Y);
+
+            if (newEvilBunny != null)
+            {
+                availableBunniesForConversion.Add(newEvilBunny);
+                newEvilBunny = null;
+            }
+
+            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y + 1);
+
+            if (newEvilBunny != null)
+            {
+                availableBunniesForConversion.Add(newEvilBunny);
+                newEvilBunny = null;
+            }
+
+            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X - 1 && bun.Position.Y == Position.Y);
+
+            if (newEvilBunny != null)
+            {
+                availableBunniesForConversion.Add(newEvilBunny);
+                newEvilBunny = null;
+            }
+
+            if (availableBunniesForConversion.Count > 0)
+            {
+                newEvilBunny = availableBunniesForConversion[Main.rand.Next(availableBunniesForConversion.Count)];
+                newEvilBunny.Evil = true;
+            }
+        }
+
         public void Move()
         {
             List<Direction> possibleDirections = GetPossibleDirections();
@@ -115,28 +153,31 @@ namespace BunnySimulation
 
         public void GiveBirth()
         {
-            var availableDirections = GetPossibleDirections();
-
-            if (availableDirections.Count > 0)
+            if (Main.rand.Next(100) < birthChance)
             {
-                Direction currentDirection = availableDirections[Main.rand.Next(availableDirections.Count)];
+                var availableDirections = GetPossibleDirections();
 
-                if (currentDirection == Direction.Up)
+                if (availableDirections.Count > 0)
                 {
-                    Grid.bunnies.Add(new Bunny(new Vector2(Position.X, Position.Y - 1)));
-                }
-                else if (currentDirection == Direction.Right)
-                {
-                    Grid.bunnies.Add(new Bunny(new Vector2(Position.X + 1, Position.Y)));
-                }
-                else  if (currentDirection == Direction.Down)
-                {
-                    Grid.bunnies.Add(new Bunny(new Vector2(Position.X, Position.Y + 1)));
-                }
-                else if (currentDirection == Direction.Left)
-                {
-                    Grid.bunnies.Add(new Bunny(new Vector2(Position.X - 1, Position.Y)));
-                }
+                    Direction currentDirection = availableDirections[Main.rand.Next(availableDirections.Count)];
+
+                    if (currentDirection == Direction.Up)
+                    {
+                        Grid.bunnies.Add(new Bunny(new Vector2(Position.X, Position.Y - 1)));
+                    }
+                    else if (currentDirection == Direction.Right)
+                    {
+                        Grid.bunnies.Add(new Bunny(new Vector2(Position.X + 1, Position.Y)));
+                    }
+                    else if (currentDirection == Direction.Down)
+                    {
+                        Grid.bunnies.Add(new Bunny(new Vector2(Position.X, Position.Y + 1)));
+                    }
+                    else if (currentDirection == Direction.Left)
+                    {
+                        Grid.bunnies.Add(new Bunny(new Vector2(Position.X - 1, Position.Y)));
+                    }
+                } 
             }
         }
 
@@ -157,7 +198,6 @@ namespace BunnySimulation
         public void Die()
         {
             Grid.bunniesForRemoval.Add(this);
-            Console.WriteLine("Bunny" + Name + "Has died!");
         }
 
         private void MoveInDirection(Direction direction)
@@ -232,7 +272,7 @@ namespace BunnySimulation
 
             if (Evil)
             {
-                currentColor = Color.Black;
+                currentColor = evilBunnyColor;
             }
             else if (Sex ==  Sex.Male)
             {

@@ -4,14 +4,16 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Linq;
+using System.Threading;
 
 namespace BunnySimulation
 {
     public class Main : Game
     {
+        public const int bunniesCap = 200;
+
         public static int width;
         public static int height;
-
         public static GraphicsDeviceManager graphics;
         public static SpriteBatch spriteBatch;
         public static ContentManager content;
@@ -20,6 +22,8 @@ namespace BunnySimulation
         public static Random rand;
         public static int currentTurn;
 
+        private TimeSpan lastTurnChange = new TimeSpan(0, 0, 0);
+        private TimeSpan secondsBetweenTurns = new TimeSpan(0, 0, 1);
 
         public Main()
         {
@@ -66,14 +70,46 @@ namespace BunnySimulation
                 this.Exit();
             }
 
-            if (keyboard.JustPressed(Keys.Space))
+            if (keyboard.JustPressed(Keys.Space) || lastTurnChange + secondsBetweenTurns < gameTime.TotalGameTime)
             {
                 AdvanceTurns();
+                lastTurnChange = gameTime.TotalGameTime;
+            }
+
+            if (Grid.bunnies.Count > bunniesCap || keyboard.JustPressed(Keys.K))
+            {
+                Massacre();
             }
 
             mouse.UpdateMouse(gameTime);
             keyboard.Update(gameTime);
+
+            UpdateConsole();
+
             base.Update(gameTime);
+        }
+
+        private void UpdateConsole()
+        {
+            Console.Clear();
+
+            var evilBunniesCount = Grid.bunnies.Count(bun => bun.Evil);
+
+            Console.WriteLine("Bunnies: {0} ({1} normal and {2} evil)", Grid.bunnies.Count, Grid.bunnies.Count - evilBunniesCount, evilBunniesCount);
+        }
+
+        public void Massacre()
+        {
+            for (int i = 0; i < bunniesCap / 2; i++)
+            {
+                Grid.bunnies[Main.rand.Next(Grid.bunnies.Count)].Die(); 
+            }
+
+            Console.WriteLine("Massacre!!!");
+            Console.WriteLine("Massacre!!!");
+            Console.WriteLine("Massacre!!!");
+            Console.WriteLine("Massacre!!!");
+            Thread.Sleep(1000);
         }
 
         public void AdvanceTurns()
@@ -84,6 +120,12 @@ namespace BunnySimulation
             for (int i = 0; i < Grid.bunnies.Count; i++)
             {
                 Grid.bunnies[i].IncreaseAge();
+
+                if (Grid.bunnies[i].Evil)
+                {
+                    Grid.bunnies[i].MakeAdjacentBunnyEvil();
+                }
+
                 Grid.bunnies[i].Move();
 
                 var adultMaleBunniesCount = Grid.bunnies.Count<Bunny>(bun => bun.Adult && bun.Sex == Sex.Male);
@@ -99,6 +141,11 @@ namespace BunnySimulation
             {
                 Grid.bunnies.Remove(bunny);
             }
+
+            var evilBunnies =
+                from bunny in Grid.bunnies
+                where bunny.Evil
+                select bunny;
         }
 
         protected override void Draw(GameTime gameTime)
