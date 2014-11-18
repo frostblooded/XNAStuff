@@ -3,10 +3,11 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Linq;
 
 namespace BunnySimulation
 {
-    public class Main : Microsoft.Xna.Framework.Game
+    public class Main : Game
     {
         public static int width;
         public static int height;
@@ -17,8 +18,8 @@ namespace BunnySimulation
         public static MouseCursor mouse;
         public static KeysInput keyboard;
         public static Random rand;
+        public static int currentTurn;
 
-        private Texture2D gridTexture;
 
         public Main()
         {
@@ -30,11 +31,11 @@ namespace BunnySimulation
 
         protected override void Initialize()
         {
-            gridTexture = Scripts.LoadTexture("Grid"); //Nobody sees that this is in the initialize
-            HandleWindowSize();
             Grid.Initialize();
+            HandleWindowSize();
             mouse = new MouseCursor(width, height, 1000);
-            keyboard = new KeysInput(); 
+            keyboard = new KeysInput();
+            currentTurn = 0;
             base.Initialize();
         }
 
@@ -45,8 +46,8 @@ namespace BunnySimulation
 
         private void HandleWindowSize()
         {
-            width = gridTexture.Width;
-            height = gridTexture.Height;
+            width = Grid.gridTexture.Width;
+            height = Grid.gridTexture.Height;
 
             IntPtr ptr = this.Window.Handle;
             System.Windows.Forms.Form form = (System.Windows.Forms.Form)System.Windows.Forms.Control.FromHandle(ptr);
@@ -65,17 +66,47 @@ namespace BunnySimulation
                 this.Exit();
             }
 
+            if (keyboard.JustPressed(Keys.Space))
+            {
+                AdvanceTurns();
+            }
+
             mouse.UpdateMouse(gameTime);
             keyboard.Update(gameTime);
             base.Update(gameTime);
         }
 
+        public void AdvanceTurns()
+        {
+            currentTurn++;
+            Console.WriteLine("Turn: " + currentTurn);
+
+            for (int i = 0; i < Grid.bunnies.Count; i++)
+            {
+                Grid.bunnies[i].IncreaseAge();
+                Grid.bunnies[i].Move();
+
+                var adultMaleBunniesCount = Grid.bunnies.Count<Bunny>(bun => bun.Adult && bun.Sex == Sex.Male);
+
+                if (Grid.bunnies[i].Sex == Sex.Female && adultMaleBunniesCount > 0)
+                {
+                    Grid.bunnies[i].GiveBirth();
+                }
+            }
+
+            //Kill aged bunnies
+            foreach (var bunny in Grid.bunniesForRemoval)
+            {
+                Grid.bunnies.Remove(bunny);
+            }
+        }
+
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Green);
+            GraphicsDevice.Clear(Color.ForestGreen);
             spriteBatch.Begin();
 
-            spriteBatch.Draw(gridTexture, new Vector2(), Color.White);
+            Grid.Draw(spriteBatch);
 
             spriteBatch.End();
             base.Draw(gameTime);
