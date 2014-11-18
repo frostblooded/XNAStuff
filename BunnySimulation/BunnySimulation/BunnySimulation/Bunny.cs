@@ -23,7 +23,8 @@ namespace BunnySimulation
     public class Bunny
     {
         public const int evilBunnyChance = 2;
-        public const int birthChance = 35;
+        public const int evilInfectionChance = 20;
+        public const int birthChance = 20;
         public static Color maleColor = Color.Blue;
         public static Color femaleColor = Color.Red;
         public static Color evilBunnyColor = Color.Black;
@@ -99,45 +100,48 @@ namespace BunnySimulation
 
         public void MakeAdjacentBunnyEvil()
         {
-            Bunny newEvilBunny = null;
-            List<Bunny> availableBunniesForConversion = new List<Bunny>();
-
-            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y - 1);
-
-            if (newEvilBunny != null)
+            if (Main.rand.Next(100) < evilInfectionChance)
             {
-                availableBunniesForConversion.Add(newEvilBunny);
-                newEvilBunny = null;
-            }
+                Bunny newEvilBunny = null;
+                List<Bunny> availableBunniesForConversion = new List<Bunny>();
 
-            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X + 1 && bun.Position.Y == Position.Y);
+                newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y - 1);
 
-            if (newEvilBunny != null)
-            {
-                availableBunniesForConversion.Add(newEvilBunny);
-                newEvilBunny = null;
-            }
+                if (newEvilBunny != null)
+                {
+                    availableBunniesForConversion.Add(newEvilBunny);
+                    newEvilBunny = null;
+                }
 
-            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y + 1);
+                newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X + 1 && bun.Position.Y == Position.Y);
 
-            if (newEvilBunny != null)
-            {
-                availableBunniesForConversion.Add(newEvilBunny);
-                newEvilBunny = null;
-            }
+                if (newEvilBunny != null)
+                {
+                    availableBunniesForConversion.Add(newEvilBunny);
+                    newEvilBunny = null;
+                }
 
-            newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X - 1 && bun.Position.Y == Position.Y);
+                newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X && bun.Position.Y == Position.Y + 1);
 
-            if (newEvilBunny != null)
-            {
-                availableBunniesForConversion.Add(newEvilBunny);
-                newEvilBunny = null;
-            }
+                if (newEvilBunny != null)
+                {
+                    availableBunniesForConversion.Add(newEvilBunny);
+                    newEvilBunny = null;
+                }
 
-            if (availableBunniesForConversion.Count > 0)
-            {
-                newEvilBunny = availableBunniesForConversion[Main.rand.Next(availableBunniesForConversion.Count)];
-                newEvilBunny.Evil = true;
+                newEvilBunny = Grid.bunnies.FirstOrDefault(bun => bun.Position.X == Position.X - 1 && bun.Position.Y == Position.Y);
+
+                if (newEvilBunny != null)
+                {
+                    availableBunniesForConversion.Add(newEvilBunny);
+                    newEvilBunny = null;
+                }
+
+                if (availableBunniesForConversion.Count > 0)
+                {
+                    newEvilBunny = availableBunniesForConversion[Main.rand.Next(availableBunniesForConversion.Count)];
+                    newEvilBunny.Evil = true;
+                } 
             }
         }
 

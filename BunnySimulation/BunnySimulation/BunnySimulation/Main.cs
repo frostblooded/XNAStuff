@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,7 +11,7 @@ namespace BunnySimulation
 {
     public class Main : Game
     {
-        public const int bunniesCap = 200;
+        public const int bunniesCap = 400;
 
         public static int width;
         public static int height;
@@ -24,6 +25,7 @@ namespace BunnySimulation
 
         private TimeSpan lastTurnChange = new TimeSpan(0, 0, 0);
         private TimeSpan secondsBetweenTurns = new TimeSpan(0, 0, 1);
+        private SoundEffect massacreSound;
 
         public Main()
         {
@@ -46,6 +48,7 @@ namespace BunnySimulation
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            massacreSound = Content.Load<SoundEffect>(@"Sounds\massacre");
         }
 
         private void HandleWindowSize()
@@ -65,20 +68,28 @@ namespace BunnySimulation
 
         protected override void Update(GameTime gameTime)
         {
-            if (keyboard.JustPressed(Keys.Escape))
+            var evilBunniesCount = Grid.bunnies.Count(bun => bun.Evil);
+
+            if (evilBunniesCount > Grid.bunnies.Count / 2)
             {
+                Console.WriteLine("The evil bunnies overtook! You lose!");
+                Thread.Sleep(4000);
                 this.Exit();
             }
 
-            if (keyboard.JustPressed(Keys.Space) || lastTurnChange + secondsBetweenTurns < gameTime.TotalGameTime)
+            if (Grid.bunnies.Count <= 0 || keyboard.JustPressed(Keys.Escape))
             {
-                AdvanceTurns();
-                lastTurnChange = gameTime.TotalGameTime;
+                this.Exit();
             }
 
             if (Grid.bunnies.Count > bunniesCap || keyboard.JustPressed(Keys.K))
             {
                 Massacre();
+            }
+            else if (keyboard.JustPressed(Keys.Space) || lastTurnChange + secondsBetweenTurns < gameTime.TotalGameTime)
+            {
+                AdvanceTurns();
+                lastTurnChange = gameTime.TotalGameTime;
             }
 
             mouse.UpdateMouse(gameTime);
@@ -105,11 +116,12 @@ namespace BunnySimulation
                 Grid.bunnies[Main.rand.Next(Grid.bunnies.Count)].Die(); 
             }
 
-            Console.WriteLine("Massacre!!!");
-            Console.WriteLine("Massacre!!!");
-            Console.WriteLine("Massacre!!!");
-            Console.WriteLine("Massacre!!!");
-            Thread.Sleep(1000);
+            foreach (var bunny in Grid.bunniesForRemoval)
+            {
+                Grid.bunnies.Remove(bunny);
+            }
+
+            massacreSound.Play();
         }
 
         public void AdvanceTurns()
